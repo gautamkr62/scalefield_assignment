@@ -48,12 +48,8 @@ pip install langchain langchain-google-genai langchain-community chromadb beauti
 
 ```bash
 
+
 ## How to run the Agent.
-Just run the files in sequence
-download_all.py -> create_vectore_store.py -> QA_Agent.py
+Just run the SEC_Agent.ipynb file cell by cell. 
 
-In a QA_Agent.py search for "user_question" Put your question there and you will get the desired answer. 
-
-
-
-
+Put your question in user_question in the cell (asked) . 
