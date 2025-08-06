@@ -85,7 +85,7 @@ def download_filings_by_strategy(ticker, queryApi, num_10k=5, other_forms_limit=
             print(f"Failed to download or process {url}: {e}")
             return False
 
-    # --- Step 1: Fetch 10-K filings to establish a date range ---
+    # Fetch 10-K filings to establish a date range ---
     print(f"\n--- Step 1: Fetching last {num_10k} 10-K filings for {ticker} ---")
     search_params_10k = {
         "query": f'ticker:{ticker} AND formType:"10-K"',
@@ -106,7 +106,7 @@ def download_filings_by_strategy(ticker, queryApi, num_10k=5, other_forms_limit=
     end_date = max(ten_k_dates)[:10]
     print(f"Date range established: {start_date} to {end_date}")
 
-    # --- Step 2: Fetch critical filings (10-Q, 8-K) within the date range ---
+    # Fetch critical filings (10-Q, 8-K) within the date range ---
     print(f"\n--- Step 2: Fetching ALL 10-Q and 8-K filings from {start_date} to {end_date} ---")
     critical_forms = ["10-Q", "8-K"]
     form_type_query_part = " OR ".join([f'formType:"{t}"' for t in critical_forms])
@@ -127,7 +127,7 @@ def download_filings_by_strategy(ticker, queryApi, num_10k=5, other_forms_limit=
         offset += len(filings_critical)
         time.sleep(1)
 
-    # --- Step 3: Fetch a limited number of other filings (DEF 14A, 3, 4, 5) ---
+    # Fetch a limited number of other filings (DEF 14A, 3, 4, 5) ---
     print(f"\n--- Step 3: Fetching RECENT (max {other_forms_limit}) other filings ---")
     limited_forms = ["DEF 14A", "3", "4", "5"]
     for form_type in limited_forms:
@@ -142,7 +142,7 @@ def download_filings_by_strategy(ticker, queryApi, num_10k=5, other_forms_limit=
             process_and_save_filing(f)
         time.sleep(1)
 
-    # --- Step 4: Save all collected metadata ---
+    # Save all collected metadata ---
     print("\n--- Step 4: Saving all collected metadata ---")
     metadata_filepath = os.path.join(save_dir, f"{ticker}_metadata.json")
     with open(metadata_filepath, "w") as f:
@@ -152,11 +152,10 @@ def download_filings_by_strategy(ticker, queryApi, num_10k=5, other_forms_limit=
     print(f"\nTotal filings downloaded for {ticker}: {count}")
 
 
-# --- Main execution block ---
+# Execution block 
 if __name__ == "__main__":
     load_dotenv()
-    # API_KEY = os.getenv("API_KEY")
-    API_KEY = "ef33853b4612fe2b06fbbbf57f54ab957ac88f269d8d97613bd7688587ef6b10"
+    API_KEY = os.getenv("API_KEY")
 
     if not API_KEY:
         raise ValueError("API_KEY not found. Please create a .env file and add your API_KEY from sec-api.io.")
