@@ -32,7 +32,6 @@ The system is capable of processing thousands of filings from multiple companies
 
 It is highly recommended to use a virtual environment to manage project dependencies.
 
-```bash
 # Create a new virtual environment
 python -m venv venv
 
@@ -46,3 +45,15 @@ source venv/bin/activate
 ### 3. Setup libraries 
 
 pip install langchain langchain-google-genai langchain-community chromadb beautifulsoup4 numpy pydantic requests
+
+```bash
+
+## How to run the Agent.
+Just run the files in sequence
+download_all.py -> create_vectore_store.py -> QA_Agent.py
+
+In a QA_Agent.py search for "user_question" Put your question there and you will get the desired answer. 
+
+
+
+
