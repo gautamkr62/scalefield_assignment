@@ -6,8 +6,6 @@ from typing import List, Dict, Any
 import numpy as np
 import logging
 import traceback
-
-# LangChain and other core libraries
 from langchain.chains import RetrievalQA
 from langchain_google_genai import GoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import Chroma
@@ -19,7 +17,6 @@ from pydantic import BaseModel, Field
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
-# --- 1. The Query Parser: Using an LLM to Extract Metadata ---
 
 class QueryMetadata(BaseModel):
     """Metadata extracted from a user's financial query."""
@@ -28,6 +25,8 @@ class QueryMetadata(BaseModel):
     form_type: List[str] = Field(description="List of SEC form types mentioned, e.g., ['10-K', '10-Q']")
     year: List[int] = Field(description="List of four-digit years mentioned, e.g., [2023]")
     search_query: str = Field(description="The core semantic question to be used for the vector search.")
+
+## How sections are defined on the Securities and Exchange Commission, used to find the correct section for a query. 
 
 SEC_SECTIONS = {
     "Item 1. Business": (
@@ -59,7 +58,7 @@ SEC_SECTIONS = {
     ),
 }
 
-# --- NEW: Mapping keywords to specific form types for intelligent filtering ---
+# Mapping keywords to specific form types for intelligent filtering 
 FORM_TYPE_KEYWORDS = {
     "insider trading": ["3", "4", "5"],
     "executive compensation": ["DEF 14A"],
@@ -114,7 +113,7 @@ class QueryParser:
         if parsed_metadata.ticker: conditions.append({"ticker": {"$in": parsed_metadata.ticker}})
         if parsed_metadata.sector: conditions.append({"sector": {"$in": parsed_metadata.sector}})
         
-        # --- Intelligent Form Type Selection ---
+        # Form Type Selection 
         target_forms = set()
         if parsed_metadata.form_type:
             target_forms.update(parsed_metadata.form_type)
@@ -128,12 +127,10 @@ class QueryParser:
                 target_forms.add("10-K")
         
         conditions.append({"form_type": {"$in": list(target_forms)}})
-        # ---------------------------------------------
 
         if parsed_metadata.year:
             conditions.append({"year": {"$in": parsed_metadata.year}})
         
-        # --- Form-Aware Section Routing ---
         # Only search for "Item" sections if we are looking at a 10-K or 10-Q
         if any(form in target_forms for form in ["10-K", "10-Q"]):
             best_section = self._find_best_section(parsed_metadata.search_query)
@@ -142,14 +139,13 @@ class QueryParser:
                 if simple_section_match:
                     simple_section_tag = simple_section_match.group(0).upper().replace(" ", "")
                     conditions.append({"section_simple": simple_section_tag})
-        # ----------------------------------
+        
             
         filter_dict = {"$and": conditions} if len(conditions) > 1 else (conditions[0] if conditions else {})
         return filter_dict, parsed_metadata.search_query
 
 
-# --- 2. The Main QA Application ---
-
+# QA Implementation 
 def pretty_print_result(result: dict):
     """Prints the QA result in a readable format."""
     print("\n✅ Final Answer:")
@@ -185,6 +181,7 @@ if __name__ == "__main__":
             parser = QueryParser(llm, embedding_model)
 
             # 3. Define the user's question
+	
             user_question = "How do companies describe competitive advantages? What themes emerge?"
             
             
