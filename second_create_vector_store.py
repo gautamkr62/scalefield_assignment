@@ -19,7 +19,6 @@ def convert_html_table_to_json(table_soup: BeautifulSoup) -> str:
     """
     rows = table_soup.find_all('tr')
     
-    # Initialize grid with a safe upper bound for columns
     max_cols = 0
     for row in rows:
         max_cols = max(max_cols, len(row.find_all(['th', 'td'])))
@@ -32,13 +31,11 @@ def convert_html_table_to_json(table_soup: BeautifulSoup) -> str:
         cells = row.find_all(['th', 'td'])
         c = 0
         for cell in cells:
-            # --- FIX: Add boundary checks to prevent IndexError ---
             while c < len(grid[r]) and grid[r][c] is not None:
                 c += 1
             
             if c >= len(grid[r]):
                 continue # Skip cell if row is malformed and we're out of bounds
-            # ----------------------------------------------------
             
             rowspan = int(cell.get('rowspan', 1))
             colspan = int(cell.get('colspan', 1))
@@ -68,9 +65,9 @@ def convert_html_table_to_json(table_soup: BeautifulSoup) -> str:
             break
 
     if not header:
-        return "" # Cannot process table without a clear header
+        return "" # return if there is no header. 
 
-    # Convert the rest of the grid to a list of dictionaries
+    # Grid -> Dictionarise 
     json_data = []
     for r in range(header_row_index + 1, len(grid)):
         row_data = grid[r]
@@ -228,7 +225,6 @@ def filter_complex_metadata(metadata: dict) -> dict:
             filtered_metadata[key] = ", ".join(map(str, value))
     return filtered_metadata
 
-# --- Main Execution Block ---
 if __name__ == "__main__":
     
     TICKER_TO_SECTOR = {
